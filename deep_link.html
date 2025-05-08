@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Link Redirect</title>
+</head>
+
+<body>
+  <script type="text/javascript">
+    window.onload = function () {
+      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      var appStoreURL;
+      var deepLinkURL;
+      var language = navigator.language || navigator.userLanguage;
+      var countryCode = language.split('-')[1] || 'us'; // 언어 코드에서 국가 코드 추출, 기본값은 'us'
+
+      var urlParams = new URLSearchParams(window.location.search);
+      var storeId = urlParams.get('storeId');
+
+      console.log("StoreId:", storeId)
+
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        // iOS
+        appStoreURL = `https://apps.apple.com/{countryCode}/app/keynote/id361285480`; // 앱스토어 앱 링크 (임시로 키노트앱)
+        // appStoreURL = `https://apps.apple.com/{countryCode}/app/id6446302012`;
+        deepLinkURL = "oishare://map/store?id=" + storeId; // 테스트할 딥링크 URL
+      } else if (/android/i.test(userAgent)) {
+        // Android
+        // appStoreURL = `https://play.google.com/store/apps/details?id=com.google.android.apps.docs&gl=${countryCode.toLowerCase()}`; // Google Drive 앱 링크
+        appStoreURL = 'https://play.google.com/store/apps/details?id=com.google.android.apps.docs'
+        // appStoreURL = `https://play.google.com/store/apps/details?id=com.overk.oi&gl=${countryCode.toLowerCase()}`;
+        deepLinkURL = "oishare://map/store?id=" + storeId;; // 테스트할 딥링크 URL
+      } else {
+        // 다른 플랫폼이거나 지원하지 않는 경우
+        alert("이 페이지는 Android와 iOS에서만 작동합니다.");
+        return;
+      }
+
+      // 딥링크를 시도합니다.
+      var now = Date.now();
+      window.location = deepLinkURL;
+
+      var focusLost = false;
+      window.addEventListener("blur", function () {
+        focusLost = true //deep link success
+      });
+
+      // 일정 시간 후 앱스토어로 리디렉션합니다.
+      setTimeout(function () {
+        if (!focusLost) {
+          window.location = appStoreURL;
+        }
+      }, 5000); // 5초 후 앱스토어로 리디렉션
+    }
+  </script>
+</body>
+
+</html>
