@@ -8,68 +8,82 @@
 </head>
 
 <body>
-  <script type="text/javascript">
-    window.onload = function () {
-      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-      var appStoreURL;
-      var deepLinkURL;
-      var language = navigator.language || navigator.userLanguage;
-      var countryCode = language.split('-')[1] || 'us';
+  <script setup>
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera
+    let appStoreURL
+    let deepLinkURL
+    // const language = navigator.language || navigator.userLanguage
+    // const countryCode = language.split('-')[1] || 'us' // 언어 코드에서 국가 코드 추출, 기본값은 'us'
 
-      var urlParams = new URLSearchParams(window.location.search);
-      var storeId = urlParams.get('storeId');
-      var promotionId = urlParams.get('promotionId');
+    const urlParams = new URLSearchParams(window.location.search)
+    const storeId = urlParams.get('storeId')
+    const promotionId = urlParams.get('promotionId')
 
-      console.log("StoreId:", storeId);
-      console.log("PromotionId:", promotionId);
-
-      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        // iOS
-        appStoreURL = `https://apps.apple.com/${countryCode}/app/keynote/id361285480`;
-
-        if (storeId) {
-          deepLinkURL = "oishare://map/store?id=" + storeId;
-        } else if (promotionId) {
-          deepLinkURL = "oishare://map/promotion?id=" + promotionId;
-        } else {
-          alert("유효한 파라미터가 없습니다.");
-          return;
-        }
-
-      } else if (/android/i.test(userAgent)) {
-        // Android
-        appStoreURL = 'https://play.google.com/store/apps/details?id=com.google.android.apps.docs';
-
-        if (storeId) {
-          deepLinkURL = "oishare://map/store?id=" + storeId;
-        } else if (promotionId) {
-          deepLinkURL = "oishare://map/promotion?id=" + promotionId;
-        } else {
-          alert("유효한 파라미터가 없습니다.");
-          return;
-        }
-
-      } else {
-        alert("이 페이지는 Android와 iOS에서만 작동합니다.");
-        return;
-      }
-
-      var focusLost = false;
-      window.addEventListener("blur", function () {
-        focusLost = true; // deep link success
-      });
-
-      // 딥링크 시도
-      window.location = deepLinkURL;
-
-      // 일정 시간 후 앱스토어로 리디렉션
-      setTimeout(function () {
-        if (!focusLost) {
-          window.location = appStoreURL;
-        }
-      }, 5000);
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream
     }
+    function isAndroid() {
+      return /android/i.test(userAgent)
+    }
+
+    if (path.includes('/share')) {
+      if (isIOS()) {
+        console.log('ios')
+        // iOS
+        appStoreURL = `https://apps.apple.com/{countryCode}/app/keynote/id361285480` // 앱스토어 앱 링크 (임시)
+        deepLinkURL = path.includes('storeId=')
+          ? 'oishare://map/store?id=' + storeId
+          : 'oishare://map/promotion?id=' + promotionId
+      } else if (isAndroid()) {
+        console.log('android')
+        // Android
+        appStoreURL = 'https://play.google.com/store/apps/details?id=com.google.android.apps.docs'
+        deepLinkURL = path.includes('storeId=')
+          ? 'oishare://map/store?id=' + storeId
+          : 'oishare://map/promotion?id=' + promotionId
+      } else {
+        window.location = 'https://web-dev.oi-app.net'
+      }
+    }
+
+    if (path.includes('/qrcode')) {
+      if (isIOS()) {
+        console.log('ios')
+        // iOS
+        appStoreURL = `https://apps.apple.com/{countryCode}/app/keynote/id361285480` // 앱스토어 앱 링크 (임시)
+        deepLinkURL = path.includes('storeId=')
+          ? 'oishare://map/store?id=' + storeId
+          : 'oishare://map/promotion?id=' + promotionId
+      } else if (isAndroid()) {
+        console.log('android')
+        // Android
+        appStoreURL = 'https://play.google.com/store/apps/details?id=com.google.android.apps.docs'
+        deepLinkURL = path.includes('storeId=')
+          ? 'oishare://map/store?id=' + storeId
+          : 'oishare://map/promotion?id=' + promotionId
+      } else {
+        // 다른 플랫폼이거나 지원하지 않는 경우
+        alert('이 페이지는 Android와 iOS에서만 작동합니다.')
+        window.location = '/'
+      }
+    }
+
+    // 딥링크를 시도합니다.
+    window.location = deepLinkURL
+
+    let focusLost = false
+    window.addEventListener('blur', function () {
+      focusLost = true //deep link success
+    })
+
+    // 일정 시간 후 앱스토어로 리디렉션합니다.
+    setTimeout(function () {
+      if (!focusLost) {
+        window.location = appStoreURL
+      }
+    }, 5000) // 5초 후 앱스토어로 리디렉션
   </script>
+
 
 </body>
 
